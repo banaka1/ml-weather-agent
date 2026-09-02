@@ -4,58 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>智能助手</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);height:100vh;display:flex;justify-content:center;align-items:center}
-.chat{width:460px;height:680px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);display:flex;flex-direction:column;overflow:hidden}
-.head{padding:18px 24px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:17px;font-weight:600;display:flex;align-items:center;gap:10px}
-.head .dot{width:10px;height:10px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80}
-.msgbox{flex:1;padding:20px;overflow-y:auto;background:#f7f8fa}
-.m{margin-bottom:14px;display:flex;gap:10px;align-items:flex-start}
-.m.me{flex-direction:row-reverse}
-.m .av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.m.ai .av{background:#e0e7ff}
-.m.me .av{background:#dbeafe}
-.m .b{max-width:70%;padding:11px 15px;border-radius:15px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
-.m.ai .b{background:#fff;border:1px solid #e5e7eb;border-top-left-radius:4px}
-.m.me .b{background:#667eea;color:#fff;border-top-right-radius:4px}
-.load .b{display:flex;gap:4px;padding:11px 15px}
-.load .b span{width:8px;height:8px;border-radius:50%;background:#9ca3af;animation:b 1.4s infinite ease-in-out both}
-.load .b span:nth-child(1){animation-delay:-0.32s}
-.load .b span:nth-child(2){animation-delay:-0.16s}
-@keyframes b{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
-.input{padding:14px;border-top:1px solid #e5e7eb;display:flex;gap:10px;background:#fff}
-.input input{flex:1;padding:11px 16px;border:1px solid #e5e7eb;border-radius:22px;font-size:14px;outline:none}
-.input input:focus{border-color:#667eea}
-.input button{padding:11px 22px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:22px;font-size:14px;font-weight:600;cursor:pointer}
-.input button:disabled{opacity:.5;cursor:not-allowed}
-</style>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="chat">
-    <div class="head"><span class="dot"></span>智能助手</div>
+
+<!-- 左侧边栏 -->
+<aside class="sidebar">
+    <div class="side-top">
+        <div class="side-title"><span class="dot"></span>智能助手</div>
+    </div>
+    <button class="side-new" id="newBtn">+ 新建会话</button>
+    <ul class="side-list" id="sideList">
+        <li class="active">当前会话</li>
+    </ul>
+    <div class="side-bottom">LangChain + FastAPI</div>
+</aside>
+
+<!-- 中间对话区 -->
+<section class="main">
+    <div class="main-head">当前会话</div>
     <div class="msgbox" id="box">
-        <div class="m ai"><div class="av">🤖</div><div class="b">你好！我可以帮你查天气～试试问"平顶山今天天气怎么样？"</div></div>
+        <div class="m ai">
+            <div class="av">🤖</div>
+            <div class="b">你好！我可以帮你查天气，也能聊别的～试试问「平顶山今天天气怎么样？」</div>
+        </div>
     </div>
     <div class="input">
         <input type="text" id="inp" placeholder="输入消息，回车发送..." autocomplete="off">
         <button id="btn">发送</button>
     </div>
-</div>
-<script>
-const box=document.getElementById('box'),inp=document.getElementById('inp'),btn=document.getElementById('btn');
-function add(role,text){const d=document.createElement('div');d.className='m '+role;const av=role==='ai'?'🤖':'👤';d.innerHTML=`<div class="av">${av}</div><div class="b">${text}</div>`;box.appendChild(d);box.scrollTop=box.scrollHeight}
-function loading(){const d=document.createElement('div');d.className='m ai load';d.innerHTML=`<div class="av">🤖</div><div class="b"><span></span><span></span><span></span></div>`;box.appendChild(d);box.scrollTop=box.scrollHeight;return d}
-async function send(){
-    const t=inp.value.trim();if(!t)return;inp.value='';btn.disabled=true;
-    add('me',t);const l=loading();
-    try{
-        const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t})});
-        const d=await r.json();l.remove();add('ai',d.reply||d.detail||'无响应');
-    }catch(e){l.remove();add('ai','请求失败：'+e.message)}
-    btn.disabled=false;inp.focus();
-}
-btn.addEventListener('click',send);inp.addEventListener('keydown',e=>{if(e.key==='Enter')send()});
-</script>
+</section>
+
+<script src="js/app.js"></script>
 </body>
 </html>
