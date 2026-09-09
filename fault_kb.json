@@ -1,0 +1,82 @@
+{
+  "faults": [
+    {
+      "id": "cpu_high",
+      "keywords": ["cpu", "飙高", "过高", "占用率高", "负载高", "使用率高"],
+      "title": "CPU 使用率过高",
+      "steps": [
+        "1. 执行 top -c 查看 CPU 占用最高的进程，记录 PID 和进程名",
+        "2. 执行 ps -mp <PID> -o THREAD,tid,time 查看是哪个线程占用高",
+        "3. 用 jstack <PID>（Java）或 pstack <PID> 分析线程栈，定位代码热点",
+        "4. 检查 /proc/loadavg 确认负载趋势，判断是突增还是持续高位",
+        "5. 查看是否有定时任务或异常流量触发，检查 crontab 和 nginx access log"
+      ],
+      "follow_up": ["请问是哪台服务器的 CPU 高？", "占用最高的进程是什么？", "CPU 是突然飙高还是持续高位？"]
+    },
+    {
+      "id": "memory_high",
+      "keywords": ["内存", "不足", "out of memory", "oom", "占用高", "memory"],
+      "title": "内存不足 / OOM",
+      "steps": [
+        "1. 执行 free -h 查看内存和 swap 使用情况",
+        "2. 执行 ps aux --sort=-%mem | head 查看内存占用最高的进程",
+        "3. 检查 dmesg | grep -i oom 是否有 OOM Killer 记录",
+        "4. 查看 /proc/<PID>/status 中 VmRSS 和 VmSize 分析具体进程内存",
+        "5. 若是 Java 进程，用 jmap -heap <PID> 分析堆内存使用"
+      ],
+      "follow_up": ["是哪个进程占用内存多？", "是否有 OOM Killer 日志？", "物理内存总量是多少？"]
+    },
+    {
+      "id": "disk_full",
+      "keywords": ["磁盘", "满", "空间不足", "disk", "no space", "inode"],
+      "title": "磁盘空间不足",
+      "steps": [
+        "1. 执行 df -h 查看各分区使用率，定位满的分区",
+        "2. 执行 du -sh /* | sort -rh | head 找出大目录",
+        "3. 执行 df -i 检查 inode 是否耗尽（小文件过多）",
+        "4. 查找大文件：find / -type f -size +100M 2>/dev/null",
+        "5. 清理日志：ls -lh /var/log/，可 truncate 大日志文件"
+      ],
+      "follow_up": ["哪个分区满了？", "是否有异常增长的日志文件？", "inode 使用率是多少？"]
+    },
+    {
+      "id": "service_down",
+      "keywords": ["服务", "宕机", "挂了", "不可用", "down", "502", "503"],
+      "title": "服务宕机 / 不可用",
+      "steps": [
+        "1. 执行 systemctl status <服务名> 查看服务状态和最近日志",
+        "2. 查看服务日志：journalctl -u <服务名> --no-pager -n 100",
+        "3. 检查端口是否监听：ss -tlnp | grep <端口>",
+        "4. 查看进程是否存在：ps aux | grep <进程名>",
+        "5. 检查依赖服务（数据库/缓存）是否正常，查看资源是否耗尽"
+      ],
+      "follow_up": ["是哪个服务宕了？", "服务日志有什么报错？", "是突然挂掉还是启动失败？"]
+    },
+    {
+      "id": "network",
+      "keywords": ["网络", "不通", "超时", "连接", "network", "timeout", "ping"],
+      "title": "网络不通 / 连接超时",
+      "steps": [
+        "1. ping <目标IP> 检查基础网络连通性",
+        "2. traceroute <目标IP> 查看路由路径",
+        "3. telnet <IP> <端口> 或 nc -zv <IP> <端口> 检查端口连通性",
+        "4. 检查防火墙：iptables -L -n 或 firewalld 状态",
+        "5. 查看 DNS：nslookup <域名>，检查 /etc/resolv.conf"
+      ],
+      "follow_up": ["目标地址和端口是什么？", "ping 是否通？", "是所有端口不通还是特定端口？"]
+    },
+    {
+      "id": "db_slow",
+      "keywords": ["数据库", "慢", "卡", "连接", "sql", "mysql", "查询慢"],
+      "title": "数据库慢 / 连接异常",
+      "steps": [
+        "1. 执行 SHOW PROCESSLIST 查看当前运行的 SQL 和状态",
+        "2. 查看慢查询日志：开启 slow_query_log，分析 long_query_time 以上的 SQL",
+        "3. 检查连接数：SHOW STATUS LIKE 'Threads_connected'，对比 max_connections",
+        "4. 用 EXPLAIN 分析慢 SQL 的执行计划，确认索引使用",
+        "5. 检查服务器资源：CPU/内存/磁盘 IO 是否成为瓶颈"
+      ],
+      "follow_up": ["是 MySQL 还是其他数据库？", "具体哪条 SQL 慢？", "连接数是否打满？"]
+    }
+  ]
+}

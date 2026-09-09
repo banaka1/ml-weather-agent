@@ -1,0 +1,35 @@
+:root {
+  --brand-primary: #4f7cff;
+  --brand-primary-light: #eef2ff;
+  --bg-sidebar: #f7f8fa;
+  --bg-chat: #ffffff;
+  --text-primary: #1f2329;
+  --text-secondary: #646a73;
+  --border-color: #e5e6eb;
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg-chat);
+  color: var(--text-primary);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #c9cdd4;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
