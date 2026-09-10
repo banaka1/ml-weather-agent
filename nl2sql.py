@@ -29,6 +29,11 @@ metrics(id, server_id, cpu, memory, disk, ts)
 alerts(id, server_id, level, message, ts)
 servers.status: running/stopped
 alerts.level: info/warning/critical
+说明：
+- metrics 是时序表，每个 server_id 可能有多个不同 ts（采集时间）的快照；
+- 查询"当前/最新/现在"性能时，只取每台服务器最新一条（按 server_id 取 MAX(ts) 对应记录），不要返回同一台服务器多条记录；
+- 查询 metrics 时 SELECT 必须包含 ts 列，便于区分采集时间点；
+- 仅当用户明确要"历史趋势/所有记录"时才返回同一台服务器的多条快照。
 """
 
 # 黑名单关键词（FR-9.4 SQL 注入防护）
@@ -46,7 +51,9 @@ NL2SQL_PROMPT = ChatPromptTemplate.from_messages([
 规则：
 1. 只生成 SELECT 语句，不要生成任何写入/修改/删除语句；
 2. 必须包含 LIMIT 子句，且 LIMIT ≤ 100；
-3. 只返回 SQL 语句本身，不要解释，不要加 markdown 代码块。"""),
+3. 只返回 SQL 语句本身，不要解释，不要加 markdown 代码块；
+4. metrics 是时序表，每个 server_id 有多条不同 ts 的快照；查询"当前/最新/现在"性能时，只取每台服务器最新一条（按 server_id 分组取 MAX(ts)），不要返回同一台服务器多条记录；
+5. 查询 metrics 时 SELECT 必须包含 ts 列；仅当用户明确要"历史趋势/所有记录"时才返回同一台服务器的多条快照。"""),
     ("human", "{question}")
 ])
 
