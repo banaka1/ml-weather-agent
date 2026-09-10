@@ -30,6 +30,9 @@
         </div>
       </header>
 
+      <!-- 可查询数据表 -->
+      <SchemaPanel />
+
       <!-- 消息区 -->
       <div class="messages" ref="messagesEl">
         <div v-if="!sessionStore.currentId" class="welcome">
@@ -62,6 +65,7 @@ import { useChatStore } from '@/stores/chat'
 import SessionList from '@/components/SessionList.vue'
 import ChatBubble from '@/components/ChatBubble.vue'
 import ChatInput from '@/components/ChatInput.vue'
+import SchemaPanel from '@/components/SchemaPanel.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
